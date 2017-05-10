@@ -489,7 +489,7 @@ typedef NS_ENUM(NSInteger, PSWebSocketDriverState) {
             
             // per-message deflate
             if(![self pmdConfigureWithExtensionsHeaderComponents:extensionComponents]) {
-                PSWebSocketSetOutError(outError, PSWebSocketErrorCodeHandshakeFailed, @"permessage-deflate could not negotiate parameters");
+                PSWebSocketSetOutError(outError, PSWebSocketErrorCodeHandshakeFailed, @"permessage-deflate extension could not negotiate parameters");
                 return -1;
             }
             
@@ -901,9 +901,11 @@ typedef NS_ENUM(NSInteger, PSWebSocketDriverState) {
         if([subcomponents[0] isEqualToString:@"permessage-deflate"]) {
             _pmdEnabled = YES;
         } else if([subcomponents[0] isEqualToString:@"client_max_window_bits"] && subcomponents.count > 1) {
-            _pmdClientWindowBits = -[subcomponents[1] integerValue];
+            NSString* clientMax = [subcomponents[1] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            _pmdClientWindowBits = -[clientMax integerValue];
         } else if([subcomponents[0] isEqualToString:@"server_max_window_bits"] && subcomponents.count > 1) {
-            _pmdServerWindowBits = -[subcomponents[1] integerValue];
+            NSString* serverMax = [subcomponents[1] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            _pmdServerWindowBits = -[serverMax integerValue];
         } else if([subcomponents[0] isEqualToString:@"client_no_context_takeover"] && _mode == PSWebSocketModeClient) {
             _pmdClientNoContextTakeover = YES;
         } else if([subcomponents[0] isEqualToString:@"server_no_context_takeover"] && _mode == PSWebSocketModeClient) {
